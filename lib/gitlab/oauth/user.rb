@@ -30,7 +30,7 @@ module Gitlab
           user = model.build_user(opts, as: :admin)
           user.skip_confirmation!
           user.save!
-          log.info "(OAuth) Creating user #{email} from login with extern_uid => #{uid}"
+          log.info "(Oauth:#{provider}) Creating user '#{username}' with mail '#{email}' from login with extern_uid => #{uid}"
 
           if Gitlab.config.omniauth['block_auto_created_users'] && !ldap?
             user.block
@@ -58,7 +58,13 @@ module Gitlab
         end
 
         def username
-          email.match(/^[^@]*/)[0]
+          uname = uid.gsub('@','.') || email.match(/^[^@]*/)[0]
+          
+          if ldap? && !ldap_uid.nil?
+            uname = ldap_uid.gsub('@','.') 
+          end
+          
+          uname
         end
 
         def provider
@@ -79,6 +85,14 @@ module Gitlab
 
         def ldap?
           provider == 'ldap'
+        end
+        
+        def ldap_uid
+          auth.extra.raw_info[ldap_uid_field].first unless !ldap?
+        end
+        
+        def ldap_uid_field
+          Gitlab.config.ldap.uid || 'samaccountname'
         end
       end
     end

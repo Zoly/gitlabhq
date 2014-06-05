@@ -6,8 +6,29 @@ if defined?(Unicorn)
   require 'unicorn/worker_killer'
 
   # Max memory size (RSS) per worker
-  use Unicorn::WorkerKiller::Oom, (200 * (1 << 20)), (250 * (1 << 20))
+  # use Unicorn::WorkerKiller::Oom, (200 * (1 << 20)), (250 * (1 << 20))
+  
+  # --- Start of unicorn worker killer code ---
+
+	if ENV['RAILS_ENV'] == 'production' 
+
+	  max_request_min =  500
+	  max_request_max =  600
+
+	  # Max requests per worker
+	  use Unicorn::WorkerKiller::MaxRequests, max_request_min, max_request_max
+
+	  oom_min = (240) * (1024**2)
+	  oom_max = (260) * (1024**2)
+
+	  # Max memory size (RSS) per worker
+	  use Unicorn::WorkerKiller::Oom, oom_min, oom_max
+	end
+
+	# --- End of unicorn worker killer code ---
 end
+
+
 
 require ::File.expand_path('../config/environment',  __FILE__)
 

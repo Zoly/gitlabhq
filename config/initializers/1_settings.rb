@@ -69,6 +69,7 @@ Settings['issues_tracker']  ||= {}
 # GitLab
 #
 Settings['gitlab'] ||= Settingslogic.new({})
+Settings.gitlab['title'] = 'Yonder source code repository'
 Settings.gitlab['default_projects_limit'] ||= 10
 Settings.gitlab['default_can_create_group'] = true if Settings.gitlab['default_can_create_group'].nil?
 Settings.gitlab['default_theme'] = Gitlab::Theme::MARS if Settings.gitlab['default_theme'].nil?
